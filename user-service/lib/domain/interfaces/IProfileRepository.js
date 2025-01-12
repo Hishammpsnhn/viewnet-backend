@@ -3,3 +3,4 @@ class IProfileRepository{
         throw new Error('Method not implemented');
     }
 }
+export default IProfileRepository;

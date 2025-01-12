@@ -42,20 +42,34 @@ class UserController {
       const verified = await otpUseCase.verifyOtp(email, otp);
       if (verified) {
         const payload = { email };
-        const token = jwtAccessTokenManager.generate(payload, "1d");
+        const accessToken = jwtAccessTokenManager.generate(payload, "1d");
+        const refreshToken = jwtAccessTokenManager.generate(payload, "7d");
         const user = await getUser.execute(email);
-        const options = {
-          expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        const accessOptions = {
+          expires: new Date(Date.now() + 15 * 60 * 1000),
           httpOnly: true,
           secure: false,
           sameSite: "None",
           path: "/",
         };
-        res.status(200).cookie("token", token, options).json({
-          success: true,
-          token: token,
-          user,
-        });
+
+        const refreshOptions = {
+          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          httpOnly: true,
+          secure: false,
+          sameSite: "None",
+          path: "/refresh-token",
+        };
+        res
+          .status(200)
+          .cookie("accessToken", accessToken, accessOptions)
+          .cookie("refreshToken", refreshToken, refreshOptions)
+          .json({
+            success: true,
+            accessToken,
+            refreshToken,
+            user,
+          });
       } else {
         res.status(400).json({ message: "Invalid OTP" });
       }

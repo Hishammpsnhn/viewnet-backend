@@ -4,6 +4,8 @@ class CreateProfile{
     }
 
     async execute(userId, profileData){
-        return await this.profileRepository.create(userId, profileData);
+        return await this.profileRepository.createProfile(userId, profileData);
     }
 } 
+
+export default CreateProfile

@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRoutes from "../../interface/routes/authRoutes.js";
-// import profileRoutes from '../../interfaces/routes/profileRoutes.js';
+import profileRoutes from '../../interface/routes/profileRoutes.js';
 // import { isAuthenticated } from '../../interfaces/controllers/AuthMiddleware.js';
 
 dotenv.config();
@@ -27,7 +27,7 @@ const createServer = async (metricsService) => {
 
   // Routes
   app.use("/", authRoutes);
-  // app.use('/', isAuthenticated, profileRoutes);
+  app.use('/',  profileRoutes);
 
   return app;
 };
