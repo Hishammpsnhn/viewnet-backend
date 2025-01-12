@@ -25,6 +25,7 @@ class RedisOtpRegistry {
   async deleteOtp(key) {
     await this.client.del(key);
   }
+
 }
 
 export default RedisOtpRegistry;
