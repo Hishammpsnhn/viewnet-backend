@@ -9,10 +9,12 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: true,  // Allow all origins
     credentials: true,
   })
 );
+
+
 app.use(authenticate);
 const services = {
   user: process.env.USER_SERVICE_URL,

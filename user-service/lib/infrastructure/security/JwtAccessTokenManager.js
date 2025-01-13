@@ -12,6 +12,11 @@ export default class JwtAccessTokenManager extends IAccessTokenManager {
     }
 
     decode(accessToken) {
-        return jwt.verify(accessToken, JWT_SECRET_KEY);
+        try {
+            return jwt.verify(accessToken, JWT_SECRET_KEY);
+        } catch (error) {
+            console.error("Token verification failed:", error.message);
+            return null;
+        }
     }
 }

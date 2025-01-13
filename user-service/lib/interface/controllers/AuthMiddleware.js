@@ -6,19 +6,27 @@ import AuthenticateUser from "../../use-cases/AuthenticateUser.js";
 const accessTokenManager = new AccessTokenManager();
 
 export async function isAuthenticated(req, res, next) {
-  // check x-authenticated === 'true' in req.headers
+  const token = await req.headers["authorization"]?.split(" ")[1];
 
-  const token = req.headers["authorization"]?.split(" ")[1];
-  console.log("token", token);
+
   try {
+
+
+    console.log("Checking token validity");
     const user = await AuthenticateUser(token, {
-      //userRepository: userRepository,
       accessTokenManager: accessTokenManager,
     });
+
+     console.log("authenticated user", user);
+    if (!user) {
+      return res.status(401).json({ message: "Token expired or invalid" });
+    }
 
     req.user = user;
     next();
   } catch (err) {
-    res.status(401).send({ message: err.message });
+    console.log("not authenticated user", err);
+    res.status(401).json({ message: err.message });
   }
 }
+

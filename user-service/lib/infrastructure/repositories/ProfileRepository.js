@@ -11,10 +11,10 @@ class ProfileRepository extends IProfileRepository {
       if (!user) {
         throw new Error("User not found");
       }
-      const newProfile = user.profiles.create(profileData); 
-      console.log("newProfile",newProfile);
+      const newProfile = user.profiles.create(profileData);
+      console.log("newProfile", newProfile);
       user.profiles.push(newProfile);
-  
+
       user.defaultProfile = newProfile._id;
 
       await user.save();
@@ -37,6 +37,22 @@ class ProfileRepository extends IProfileRepository {
       return user.profiles; // Return the profiles array for the user
     } catch (error) {
       throw new Error(`Error fetching profiles: ${error.message}`);
+    }
+  }
+
+  async updateProfile(id, defaultProfile) {
+    try {
+      const user = await UserModel.findByIdAndUpdate(
+        id,
+        { defaultProfile },
+        { new: true }
+      );
+      if (!user) {
+        throw new Error("User not found");
+      }
+      return user;
+    } catch (error) {
+      throw new Error(`Error updating profile: ${error.message}`);
     }
   }
 }

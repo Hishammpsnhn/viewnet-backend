@@ -36,53 +36,52 @@ class QrController {
     try {
       const { id } = req.params;
       const verified = await otpUseCase.verifyKey(id);
-      console.log(verified)
-      if (verified) {
-        // const payload = { email };
-        // const accessToken = jwtAccessTokenManager.generate(payload, "1d");
-        // const refreshToken = jwtAccessTokenManager.generate(payload, "7d");
-        // const user = await getUser.execute(email);
-        // const accessOptions = {
-        //   expires: new Date(Date.now() + 15 * 60 * 1000),
-        //   httpOnly: true,
-        //   secure: false,
-        //   sameSite: "None",
-        //   path: "/",
-        // };
-
-        // const refreshOptions = {
-        //   expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        //   httpOnly: true,
-        //   secure: false,
-        //   sameSite: "None",
-        //   path: "/refresh-token",
-        // };
-        // res
-        //   .status(200)
-        //   .cookie("accessToken", accessToken, accessOptions)
-        //   .cookie("refreshToken", refreshToken, refreshOptions)
-        //   .json({
-        //     success: true,
-        //     accessToken,
-        //     refreshToken,
-        //     user,
-        //   });
-        res.status(200).json({ message: "validated" });
-      } else {
+      console.log("verifies>...", verified);
+      if (verified == "false" || !verified) {
         res.status(200).json({ message: "Not validate" });
+      } else {
+        const payload = { email:verified };
+        const accessToken = jwtAccessTokenManager.generate(payload, "1d");
+        const refreshToken = jwtAccessTokenManager.generate(payload, "7d");
+        const user = await getUser.execute(verified);
+        const accessOptions = {
+          expires: new Date(Date.now() + 15 * 60 * 1000),
+          httpOnly: true,
+          secure: false,
+          sameSite: "None",
+          path: "/",
+        };
+
+        const refreshOptions = {
+          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          httpOnly: true,
+          secure: false,
+          sameSite: "None",
+          path: "/refresh-token",
+        };
+        res
+          .status(200)
+          .cookie("accessToken", accessToken, accessOptions)
+          .cookie("refreshToken", refreshToken, refreshOptions)
+          .json({
+            success: true,
+            accessToken,
+            refreshToken,
+            user,
+          });
       }
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
   }
-  static async scanQr(req,res){
+  static async scanQr(req, res) {
     try {
+      console.log("api comming .........from", req.user);
       const { id } = req.params;
-      console.log(id)
-      const verified = await otpUseCase.updateVal(id);
-      console.log(verified)
+      const verified = await otpUseCase.updateVal(id, req.user?.email);
+      console.log(verified);
       if (verified) {
-        res.status(200).json({ message: "Auth succesful" });
+        res.status(200).json({ success: true, message: "Auth succesful" });
       } else {
         res.status(200).json({ message: "Auth failed" });
       }

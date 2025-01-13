@@ -19,17 +19,16 @@ class OtpUseCase {
   async verifyKey(key) {
     const storedVal = await this.otpRepository.getOtp(key);
 
-    if (storedVal === "true") {
-      await this.otpRepository.deleteOtp(key);
-      return true;
+    if (storedVal == "false") {
+      return false;
     }
-    return false;
+    return storedVal;
   }
-  async updateVal(key) {
-    await this.otpRepository.saveOtp(key,"true");
-    const res = await this.otpRepository.getOtp(key)
+  async updateVal(key, value) {
+    await this.otpRepository.saveOtp(key, value);
+    const res = await this.otpRepository.getOtp(key);
     console.log("storedval", res);
-    if (res === "true") {
+    if (res != "false") {
       return true;
     }
     return false;

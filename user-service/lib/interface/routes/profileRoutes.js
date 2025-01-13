@@ -8,5 +8,6 @@ const router = express.Router();
 
 
  router.post('/profile',isAuthenticated, ProfileController.createProfile);
+ router.patch('/profile/:id', ProfileController.updateProfile)
 
 export default router;
