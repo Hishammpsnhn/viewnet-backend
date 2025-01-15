@@ -26,7 +26,7 @@ const createServer = async (metricsService) => {
   // metricsService.setup(app);
 
   // Routes
-  app.use("/subscription", subscriptionTypeRoute);
+  app.use("/", subscriptionTypeRoute);
 
   return app;
 };

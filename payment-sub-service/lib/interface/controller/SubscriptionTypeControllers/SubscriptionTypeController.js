@@ -9,7 +9,7 @@ const subscriptionPlanRepository = new SubscriptionPlanRepository();
 export async function GetAllPlans(req, res) {
   try {
     const plans = await GetPlans({ subscriptionPlanRepository });
-    res.status(200).json({ message: true, plans });
+    res.status(200).json({ success: true, plans });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
@@ -24,7 +24,7 @@ export async function CreateSubscriptionPlan(req, res) {
     duration,
     features,
     isActive,
-  } = req.body;
+  } = req.body.planData;
 
   console.log(
     name,

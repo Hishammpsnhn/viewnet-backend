@@ -13,14 +13,15 @@ services:
     environment:
       - PORT=4000
       - USER_SERVICE_URL=http://user-service:5000
-
+      - SUBSCRIPTION_SERVICE_URL=http://payment-sub-service:5002
     networks:
       - app-network
 
+  # Prometheus Server
   prom-server:
     image: prom/prometheus
     ports:
-      - 9090:9090
+      - "9090:9090"
     volumes:
       - ./user-service/prometheus-config.yml:/etc/prometheus/prometheus.yml
 
@@ -69,6 +70,20 @@ services:
       - app-network
     depends_on:
       - rabbitmq
+
+  # Payment and Subscription Service
+  payment-sub-service:
+    build:
+      context: ./payment-sub-service
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./payment-sub-service:/app
+    env_file:
+      - ./payment-sub-service/.env
+    networks:
+      - app-network
 
   # Redis Service
   redis:

@@ -18,12 +18,19 @@ app.use(
 app.use(authenticate);
 const services = {
   user: process.env.USER_SERVICE_URL,
+  subscription: process.env.SUBSCRIPTION_SERVICE_URL,
 };
 
 const routes = [
   {
     context: "/api/user",
     target: services.user,
+    changeOrigin: true,
+    cookieDomainRewrite: "localhost",
+  },
+  {
+    context: "/api/subscription",
+    target: services.subscription,
     changeOrigin: true,
     cookieDomainRewrite: "localhost",
   },

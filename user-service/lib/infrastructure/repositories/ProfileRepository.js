@@ -3,7 +3,6 @@ import IProfileRepository from "../../domain/interfaces/IProfileRepository.js";
 import UserModel from "../database/models/UserModel.js";
 
 class ProfileRepository extends IProfileRepository {
-  // Create a new profile for a user
   async createProfile(userId, profileData) {
     try {
       const user = await UserModel.findById(userId);
@@ -40,17 +39,28 @@ class ProfileRepository extends IProfileRepository {
     }
   }
 
-  async updateProfile(id, defaultProfile) {
+  async updateProfile(userId, profileData) {
     try {
-      const user = await UserModel.findByIdAndUpdate(
-        id,
-        { defaultProfile },
-        { new: true }
+      const user = await UserModel.findOneAndUpdate(
+        { _id: userId, "profiles._id": profileData.id },
+        {
+          $set: {
+            "profiles.$.isAdult": profileData.isAdult,
+            "profiles.$.username": profileData.username,
+            "profiles.$.profilePic": profileData.profilePic,
+          },
+        },
+        { new: true } 
       );
       if (!user) {
         throw new Error("User not found");
       }
-      return user;
+      return {
+        id: profileData.id,
+        isAdult: profileData.isAdult,
+        username: profileData.username,
+        profilePic: profileData.profilePic,
+      };
     } catch (error) {
       throw new Error(`Error updating profile: ${error.message}`);
     }
