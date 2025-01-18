@@ -3,6 +3,12 @@ export default async function (id, data, { subscriptionPlanRepository }) {
   if (!plan) throw new Error("No subscription plans");
 
   plan.setActive(data.isActive);
-  console.log("Subscription plans", plan);
+  plan.setName(data.name);
+  plan.setDescription(data.description);
+  plan.setPrice(data.price);
+  plan.setSessionLimit(data.sessionLimit);
+  plan.setDuration(data.duration);
+  plan.setFeatures(data.features);
+  
   return subscriptionPlanRepository.merge(plan);
 }

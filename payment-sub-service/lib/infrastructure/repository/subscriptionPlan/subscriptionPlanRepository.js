@@ -3,7 +3,7 @@ import ISubscriptionPlanRepository from "../../../domain/interfaces/ISubscriptio
 import MongooseSubscription from "../../database/models/SubscriptionModel.js";
 
 export default class SubscriptionPlanRepository extends ISubscriptionPlanRepository {
-  // Implement the persist method
+
   async persist(subscriptionEntity) {
     const {
       name,
@@ -51,11 +51,17 @@ export default class SubscriptionPlanRepository extends ISubscriptionPlanReposit
   }
 
   async find() {
-    const plans = await MongooseSubscription.find();
+    const plans = await MongooseSubscription.find({isActive: true});
     return plans.map((plan) => mapToSubscriptionEntity(plan));
   }
   async findById(id) {
-    const plan = await MongooseSubscription.findById(id);
+    console.log("id", id);
+    const plan = await MongooseSubscription.findOne({_id:id, isActive: true});
+    if (!plan) {
+      throw new Error('Subscription not found or inactive');
+    }
+    console.log(plan)
+  
     return mapToSubscriptionEntity(plan);
   }
 }
@@ -75,7 +81,6 @@ function mapToSubscriptionEntity(mongooseSubscription) {
     mongooseSubscription.features,
     mongooseSubscription.isActive
   );
-
   subscription.createdAt = mongooseSubscription.createdAt;
   subscription.updatedAt = mongooseSubscription.updatedAt;
 

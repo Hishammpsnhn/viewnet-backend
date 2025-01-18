@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const userSubscriptionSchema = new mongoose.Schema(
   {
-    userId: { type: Schema.Types.ObjectId, required: true }, 
+    userId: { type: Schema.Types.ObjectId, unique: true, required: true  }, 
     plan: { type: String, required: true },
     sessionLimit: { type: Number, required: true, default: 1 }, 
     status: { type: String, enum: ['active', 'inactive', 'expired'], default: 'active' }, 

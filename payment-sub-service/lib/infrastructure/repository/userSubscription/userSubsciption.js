@@ -19,6 +19,18 @@ export default class UserSubscriptionPlanRepository extends IUserSubscriptionPla
 
     return mapToUserSubscriptionEntity(mongooseUserSubscription);
   }
+
+  async findById(subscriptionId) {
+    const mongooseUserSubscription =
+      await MongooseUserSubscriptionPlan.findById(subscriptionId);
+    return mapToUserSubscriptionEntity(mongooseUserSubscription);
+  }
+  async findByUserId(userId) {
+    const mongooseUserSubscription = await MongooseUserSubscriptionPlan.findOne(
+      { userId: userId }
+    );
+    return mapToUserSubscriptionEntity(mongooseUserSubscription);
+  }
 }
 
 function mapToUserSubscriptionEntity(mongooseUserSubscription) {
@@ -37,6 +49,6 @@ function mapToUserSubscriptionEntity(mongooseUserSubscription) {
   });
   subscription.createdAt = mongooseUserSubscription.createdAt;
   subscription.updatedAt = mongooseUserSubscription.updatedAt;
-  console.log("sub",subscription)
+  console.log("sub", subscription);
   return subscription;
 }

@@ -22,8 +22,8 @@ const userSchema = new mongoose.Schema(
     profiles: [ProfilesSchema],  
     subscription: { type: Schema.Types.ObjectId },
     defaultProfile:{type:Schema.Types.ObjectId},
-    Admin: { type: Boolean, default: false, required: true },
-    Block: { type: Boolean, default: false, required: true },
+    isAdmin: { type: Boolean, default: false, required: true },
+    isBlock: { type: Boolean, default: false, required: true },
   },
   { timestamps: true }
 );

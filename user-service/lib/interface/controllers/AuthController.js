@@ -24,7 +24,7 @@ class UserController {
         return res.status(400).json({ message: "Token is required" });
       }
       const user = await getUser.execute(req.user.email );
-
+      console.log(user)
       res.status(200).json({
         success: true,
         user,

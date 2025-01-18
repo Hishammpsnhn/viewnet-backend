@@ -22,13 +22,12 @@ export default class SubscriptionType {
   }
 
   setName(name) {
-    if (name === this.name) return;
+    if   (name === this.name) return;
     this.name = name;
 
     this._modifiedFields.name = true;
   }
   setActive(isActive) {
-    console.log("setActive caling..........",isActive)
     if (isActive === this.isActive) return;
     this.isActive = isActive;
     this._modifiedFields.isActive = true;
@@ -76,12 +75,7 @@ export default class SubscriptionType {
     this._modifiedFields.isActive = true;
   }
 
-  deactivate() {
-    if (!this.isActive) return;
-    this.isActive = false;
-
-    this._modifiedFields.isActive = true;
-  }
+ 
 
   getModifiedFields() {
     return this._modifiedFields;

@@ -7,19 +7,15 @@ const accessTokenManager = new AccessTokenManager();
 
 export async function isAuthenticated(req, res, next) {
   const token = await req.headers["authorization"]?.split(" ")[1];
-
-
   try {
-
-
-    console.log("Checking token validity");
     const user = await AuthenticateUser(token, {
       accessTokenManager: accessTokenManager,
     });
-
-     console.log("authenticated user", user);
     if (!user) {
       return res.status(401).json({ message: "Token expired or invalid" });
+    }
+    if (user.isBlock) {
+      return res.status(401).json({ message: "user is Blocked" });
     }
 
     req.user = user;
@@ -29,4 +25,3 @@ export async function isAuthenticated(req, res, next) {
     res.status(401).json({ message: err.message });
   }
 }
-

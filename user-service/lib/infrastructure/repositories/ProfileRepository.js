@@ -11,7 +11,6 @@ class ProfileRepository extends IProfileRepository {
         throw new Error("User not found");
       }
       const newProfile = user.profiles.create(profileData);
-      console.log("newProfile", newProfile);
       user.profiles.push(newProfile);
 
       user.defaultProfile = newProfile._id;
@@ -40,6 +39,7 @@ class ProfileRepository extends IProfileRepository {
   }
 
   async updateProfile(userId, profileData) {
+    console.log("userId............",userId,profileData)
     try {
       const user = await UserModel.findOneAndUpdate(
         { _id: userId, "profiles._id": profileData.id },
@@ -63,6 +63,21 @@ class ProfileRepository extends IProfileRepository {
       };
     } catch (error) {
       throw new Error(`Error updating profile: ${error.message}`);
+    }
+  }
+  async changeDefaultProfile(userId,profileId){
+    try {
+      const user = await UserModel.findByIdAndUpdate(
+        { _id: userId },
+        { defaultProfile: profileId },
+        { new: true }
+      );
+      if (!user) {
+        throw new Error("User not found");
+      }
+      return user;
+    } catch (error) {
+      throw new Error(`Error changing default profile: ${error.message}`);
     }
   }
 }
