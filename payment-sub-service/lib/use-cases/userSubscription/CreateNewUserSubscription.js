@@ -15,28 +15,34 @@ export default async (
   if (!createNewPlanRepository || !subscriptionPlanRepository) {
     throw new Error("Missing  repository");
   }
-  const planDetail = await subscriptionPlanRepository.findById(planId);
-  const currentPlan = await createNewPlanRepository.findByUserId(userId);
 
-  if (currentPlan) {
-    throw new Error("User already have a subscription");
+  const paymentVerified = await paymentGateway.retrievePaymentIntent(
+    paymentIntent
+  );
+
+  if (paymentVerified) {
+    const { plan_id, user_id } = paymentVerified.metadata;
+    const currentPlan = await createNewPlanRepository.findByUserId(user_id);
+    if (currentPlan) {
+      throw new Error("User already have a subscription");
+    }
+    const planDetail = await subscriptionPlanRepository.findById(plan_id);
+    const { name, sessionLimit, duration } = planDetail;
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + duration);
+    console.log("sesionlimit",sessionLimit)
+    const userSubscription = new UserSubscriptionType({
+      userId,
+      sessionLimit:sessionLimit,
+      status: "active",
+      endDate,
+      startDate,
+      plan: name,
+    });
+    console.log("last", userSubscription);
+    const res = await createNewPlanRepository.persist(userSubscription);
+    console.log("dd", res);
+    return res;
   }
-  const paymentVerified = await paymentGateway.retrievePaymentIntent(paymentIntent);
-  console.log("resssssssssssssssssssss", paymentVerified);
-  const { name, sessionLimit, duration } = planDetail;
-  const startDate = new Date();
-  const endDate = new Date(startDate);
-  endDate.setDate(startDate.getDate() + duration);
-  const userSubscription = new UserSubscriptionType({
-    userId,
-    sessionLimit,
-    status: "active",
-    endDate,
-    startDate,
-    plan: name,
-  });
-  console.log("last", userSubscription);
-  const res = await createNewPlanRepository.persist(userSubscription);
-  console.log("dd", res);
-  return res;
 };

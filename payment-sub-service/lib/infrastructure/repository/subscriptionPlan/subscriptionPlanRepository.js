@@ -76,8 +76,8 @@ function mapToSubscriptionEntity(mongooseSubscription) {
     mongooseSubscription.name,
     mongooseSubscription.description,
     mongooseSubscription.price,
-    mongooseSubscription.duration,
     mongooseSubscription.sessionLimit,
+    mongooseSubscription.duration,
     mongooseSubscription.features,
     mongooseSubscription.isActive
   );

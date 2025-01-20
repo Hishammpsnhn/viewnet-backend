@@ -1,33 +1,48 @@
-import LoginUser from "../../use-cases/user/LoginUser.js";
+import EmailVerify from "../../use-cases/user/EmailVerify.js";
 import GetAllUsers from "../../use-cases/user/GetAllUser.js";
 import GetUser from "../../use-cases/user/GetUser.js";
-
+import LoginUser from "../../use-cases/user/LoginUser.js";
+import axios from "axios";
 import UserRepository from "../../infrastructure/repositories/UserRepository.js";
+import SessionRepository from "../../infrastructure/repositories/SessionRepository.js";
 import RedisOtpRegistry from "../../infrastructure/cache/RedisOtpRepository.js";
 import OtpUseCase from "../../use-cases/user/OtpUseCase.js";
 import JwtAccessTokenManager from "../../infrastructure/security/JwtAccessTokenManager.js";
+import SubscriptionGateway from "../../gateway/SubscriptionGateway.js";
 
 const userRepository = new UserRepository();
 const redisOtpRegistry = new RedisOtpRegistry();
 const jwtAccessTokenManager = new JwtAccessTokenManager();
+const subscriptionGateway = new SubscriptionGateway(axios);
+const sessionRepository = new SessionRepository();
 
-const loginUser = new LoginUser(userRepository);
-const getUser = new GetUser(userRepository);
+const loginUser = new EmailVerify(userRepository);
+const getUser = new GetUser(
+  userRepository,
+  subscriptionGateway,
+  sessionRepository
+);
+const userLogin = new LoginUser(
+  userRepository,
+  subscriptionGateway,
+  sessionRepository
+);
 const getAllUsers = new GetAllUsers(userRepository);
 const otpUseCase = new OtpUseCase(redisOtpRegistry);
 
 class UserController {
   static async getMe(req, res) {
     try {
-      console.log("req.user",req.user);
+      console.log("req.user", req.user);
       if (!req.user) {
         return res.status(400).json({ message: "Token is required" });
       }
-      const user = await getUser.execute(req.user.email );
-      console.log(user)
+      const { user, planDetails } = await getUser.execute(req.user.email);
+
       res.status(200).json({
         success: true,
         user,
+        planDetails,
       });
     } catch (error) {
       res.status(400).json({ message: error.message });
@@ -55,12 +70,13 @@ class UserController {
       if (!email || !otp) {
         return res.status(400).json({ message: "Email and OTP are required" });
       }
+
       const verified = await otpUseCase.verifyOtp(email, otp);
       if (verified) {
         const payload = { email };
         const accessToken = jwtAccessTokenManager.generate(payload, "15m");
         const refreshToken = jwtAccessTokenManager.generate(payload, "7d");
-        const user = await getUser.execute(email);
+        const {user} = await userLogin.execute(email);
         const accessOptions = {
           maxAge: 15 * 60 * 1000, // 7 days
           httpOnly: false,

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import UserSubscriptionType from "../../../domain/entities/UserSubscription.js";
 import IUserSubscriptionPlanRepository from "../../../domain/interfaces/IUserSubscription.js";
 import MongooseUserSubscriptionPlan from "../../database/models/UserSubscriptionModel.js";
@@ -26,10 +27,28 @@ export default class UserSubscriptionPlanRepository extends IUserSubscriptionPla
     return mapToUserSubscriptionEntity(mongooseUserSubscription);
   }
   async findByUserId(userId) {
-    const mongooseUserSubscription = await MongooseUserSubscriptionPlan.findOne(
-      { userId: userId }
-    );
-    return mapToUserSubscriptionEntity(mongooseUserSubscription);
+    userId = userId.trim();
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new Error("Invalid userId format");
+    }
+    console.log("userid: " + userId);
+    const data = await MongooseUserSubscriptionPlan.find({ userId: userId });
+    const curDate = new Date();
+
+    const mongooseUserSubscription =
+      await MongooseUserSubscriptionPlan.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(userId), // Convert userId to ObjectId if necessary
+            status: "active", // Match only active subscriptions
+            endDate: { $gte: curDate }, // Ensure endDate is greater than or equal to current date
+          },
+        },
+      ]);
+
+    console.log("mongooseUserSubscription: ", mongooseUserSubscription, data);
+    return mapToUserSubscriptionEntity(mongooseUserSubscription[0]);
   }
 }
 

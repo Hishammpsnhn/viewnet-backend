@@ -5,14 +5,15 @@ import {
   GetAllPlans,
   Plan_Payment,
 } from "../controller/SubscriptionTypeControllers/SubscriptionTypeController.js";
-import { UserCreatePlan } from "../controller/userSubscription/UserSubscriptionController.js";
+import { GetUserPlan, UserCreatePlan } from "../controller/userSubscription/UserSubscriptionController.js";
 
 const router = express.Router();
 
 router.get("/", GetAllPlans);
+router.get("/:userId", GetUserPlan);
 router.put("/:id", EditPlan);
-router.post("/payment-success", UserCreatePlan);
 router.post("/", CreateSubscriptionPlan);
+router.post("/payment-success", UserCreatePlan);
 router.post("/payment", Plan_Payment);
 
 export default router;

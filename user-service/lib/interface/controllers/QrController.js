@@ -1,4 +1,4 @@
-import LoginUser from "../../use-cases/user/LoginUser.js";
+import EmailVerify from "../../use-cases/user/EmailVerify.js";
 import GetAllUsers from "../../use-cases/user/GetAllUser.js";
 import GetUser from "../../use-cases/user/GetUser.js";
 
@@ -11,7 +11,7 @@ const userRepository = new UserRepository();
 const redisOtpRegistry = new RedisOtpRegistry();
 const jwtAccessTokenManager = new JwtAccessTokenManager();
 
-const loginUser = new LoginUser(userRepository);
+const loginUser = new EmailVerify(userRepository);
 const getUser = new GetUser(userRepository);
 const getAllUsers = new GetAllUsers(userRepository);
 const otpUseCase = new OtpUseCase(redisOtpRegistry);

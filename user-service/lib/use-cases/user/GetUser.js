@@ -1,15 +1,17 @@
 class GetUser {
-  constructor(userRepository) {
+  constructor(userRepository, subscriptionGateway, sessionRepository) {
     this.userRepository = userRepository;
+    this.subscriptionGateway = subscriptionGateway;
+    this.sessionRepository = sessionRepository;
   }
 
   async execute(email) {
     const user = await this.userRepository.findByEmail(email);
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const planDetails = await this.subscriptionGateway.fetchSubscriptionDetails(
+      user._id
+    );
 
-    return user;
+    return { user, planDetails };
   }
 }
 
