@@ -1,19 +1,26 @@
-import EmailVerify from "../../use-cases/user/EmailVerify.js";
-import GetAllUsers from "../../use-cases/user/GetAllUser.js";
-import GetUser from "../../use-cases/user/GetUser.js";
+
 
 import UserRepository from "../../infrastructure/repositories/UserRepository.js";
 import RedisOtpRegistry from "../../infrastructure/cache/RedisOtpRepository.js";
 import OtpUseCase from "../../use-cases/user/OtpUseCase.js";
 import JwtAccessTokenManager from "../../infrastructure/security/JwtAccessTokenManager.js";
+import LoginUser from "../../use-cases/user/LoginUser.js";
+import axios from "axios";
+import SubscriptionGateway from "../../gateway/SubscriptionGateway.js";
+import SessionRepository from "../../infrastructure/repositories/SessionRepository.js";
 
+
+const subscriptionGateway = new SubscriptionGateway(axios);
 const userRepository = new UserRepository();
 const redisOtpRegistry = new RedisOtpRegistry();
 const jwtAccessTokenManager = new JwtAccessTokenManager();
+const sessionRepository = new SessionRepository();
 
-const loginUser = new EmailVerify(userRepository);
-const getUser = new GetUser(userRepository);
-const getAllUsers = new GetAllUsers(userRepository);
+const userLogin = new LoginUser(
+  userRepository,
+  subscriptionGateway,
+  sessionRepository
+);
 const otpUseCase = new OtpUseCase(redisOtpRegistry);
 
 class QrController {
@@ -40,24 +47,25 @@ class QrController {
       if (verified == "false" || !verified) {
         res.status(200).json({ message: "Not validate" });
       } else {
+        console.log("veried",verified)
         const payload = { email:verified };
+        const deviceId = 'Linux-Guest'
         const accessToken = jwtAccessTokenManager.generate(payload, "1d");
         const refreshToken = jwtAccessTokenManager.generate(payload, "7d");
-        const user = await getUser.execute(verified);
+        const user = await userLogin.execute(verified, deviceId, refreshToken);
         const accessOptions = {
-          expires: new Date(Date.now() + 15 * 60 * 1000),
-          httpOnly: true,
+          maxAge: 15 * 60 * 1000, // 7 days
+          httpOnly: false,
           secure: false,
-          sameSite: "None",
+          sameSite: "Lax",
           path: "/",
         };
-
         const refreshOptions = {
-          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          httpOnly: true,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          httpOnly: false,
           secure: false,
-          sameSite: "None",
-          path: "/refresh-token",
+          sameSite: "Lax",
+          path: "/",
         };
         res
           .status(200)
