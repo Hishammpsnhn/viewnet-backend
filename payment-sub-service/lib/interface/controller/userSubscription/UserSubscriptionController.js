@@ -31,7 +31,7 @@ export async function GetUserPlan(req, res) {
     const userPlan = await GetUserPlanDetail(userId, {
       userPlanRepository: userPlanRepository,
     });
-    res.status(200).json({ message: true, userPlan });
+    res.status(200).json({ success: true, userPlan });
   } catch (err) {
     console.error(err);
     res.status(err.statusCode || 500).json({ message: err.message });

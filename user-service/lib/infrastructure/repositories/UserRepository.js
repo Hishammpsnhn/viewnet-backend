@@ -1,5 +1,5 @@
 import IUserRepository from "../../domain/interfaces/IUserRepository.js";
-import UserModel from "../database/models/UserModel.js"; 
+import UserModel from "../database/models/UserModel.js";
 
 class UserRepository extends IUserRepository {
   async create(user) {
@@ -9,6 +9,10 @@ class UserRepository extends IUserRepository {
 
   async findByEmail(email) {
     return await UserModel.findOne({ email });
+  }
+
+  async findById(id) {
+    return await UserModel.findById(id);
   }
 
   async createByEmail(email) {
@@ -23,7 +27,33 @@ class UserRepository extends IUserRepository {
   }
 
   async getAll() {
-    return await UserModel.find();
+    return await UserModel.aggregate([
+      {
+        $match: {
+          isAdmin: false,
+        },
+      },
+      {
+        $lookup: {
+          from: "sessions",
+          localField: "email",
+          foreignField: "userEmail",
+          as: "userSessions",
+        },
+      },
+      {
+        $project: {
+          email: 1,
+          profilesCount: { $size: "$profiles" },
+          isBlock: 1,
+          sessionsCount: { $size: "$userSessions" },
+        },
+      },
+    ]);
+  }
+
+  async updateById(id, updateData) {
+    return await UserModel.findByIdAndUpdate(id, updateData, { new: true });
   }
 }
 

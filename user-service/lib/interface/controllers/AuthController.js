@@ -1,7 +1,9 @@
 import EmailVerify from "../../use-cases/user/EmailVerify.js";
 import GetAllUsers from "../../use-cases/user/GetAllUser.js";
+import UpdateUser from "../../use-cases/user/UpdateUser.js";
 import GetUser from "../../use-cases/user/GetUser.js";
 import LoginUser from "../../use-cases/user/LoginUser.js";
+import Logout from "../../use-cases/user/Logout.js";
 import axios from "axios";
 import UserRepository from "../../infrastructure/repositories/UserRepository.js";
 import SessionRepository from "../../infrastructure/repositories/SessionRepository.js";
@@ -27,8 +29,10 @@ const userLogin = new LoginUser(
   subscriptionGateway,
   sessionRepository
 );
+const logout = new Logout(sessionRepository);
 const getAllUsers = new GetAllUsers(userRepository);
 const otpUseCase = new OtpUseCase(redisOtpRegistry);
+const updateUser = new UpdateUser(userRepository);
 
 class UserController {
   static async getMe(req, res) {
@@ -45,7 +49,7 @@ class UserController {
         planDetails,
       });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
   }
   static async login(req, res) {
@@ -60,13 +64,13 @@ class UserController {
 
       res.status(200).json({ message: "otp sent to email" });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
   }
 
   static async verifyOtp(req, res) {
     try {
-      const { email, otp } = req.body;
+      const { email, otp, deviceId } = req.body;
       if (!email || !otp) {
         return res.status(400).json({ message: "Email and OTP are required" });
       }
@@ -76,7 +80,7 @@ class UserController {
         const payload = { email };
         const accessToken = jwtAccessTokenManager.generate(payload, "15m");
         const refreshToken = jwtAccessTokenManager.generate(payload, "7d");
-        const {user} = await userLogin.execute(email);
+        const { user } = await userLogin.execute(email, deviceId, refreshToken);
         const accessOptions = {
           maxAge: 15 * 60 * 1000, // 7 days
           httpOnly: false,
@@ -106,16 +110,27 @@ class UserController {
         res.status(400).json({ message: "Invalid OTP" });
       }
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
   }
 
   static async getAllUsers(req, res) {
     try {
       const users = await getAllUsers.execute();
-      res.status(200).json(users);
+      res.status(200).json({ success: true, users });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  static async UpdateUser(req, res) {
+    try {
+      const { id } = req.params;
+
+      const updatedUser = await updateUser.execute(id, req.body.newData);
+      res.status(200).json({ success: true, user: updatedUser });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
     }
   }
 
@@ -143,6 +158,18 @@ class UserController {
       success: true,
       accessToken,
     });
+  }
+  static async logOut(req, res) {
+    try {
+      const refreshToken = req.params.token;
+      const response = await logout.execute(req.user.email, refreshToken);
+
+      res.status(200).json({
+        success: true,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   }
 }
 

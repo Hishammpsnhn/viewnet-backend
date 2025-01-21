@@ -2,7 +2,7 @@ class Session {
   constructor(userEmail, deviceId, token, createdAt) {
     this.userEmail = userEmail;
     this.deviceId = deviceId;
-    this.token = token;
+    this.refreshToken = token;
     this.createdAt = createdAt || new Date();
   }
 

@@ -1,27 +1,34 @@
-// import UserRepository from "../../infrastructure/repositories/UserRepositoryMongo.js";
 import AccessTokenManager from "../../infrastructure/security/JwtAccessTokenManager.js";
 import AuthenticateUser from "../../use-cases/AuthenticateUser.js";
+import UserRepository from "../../infrastructure/repositories/UserRepository.js";
 
-// const userRepository = new UserRepository();
 const accessTokenManager = new AccessTokenManager();
+const userRepository = new UserRepository();
 
 export async function isAuthenticated(req, res, next) {
-  const token = await req.headers["authorization"]?.split(" ")[1];
   try {
-    const user = await AuthenticateUser(token, {
-      accessTokenManager: accessTokenManager,
-    });
-    if (!user) {
-      return res.status(401).json({ message: "Token expired or invalid" });
-    }
-    if (user.isBlock) {
-      return res.status(401).json({ message: "user is Blocked" });
+    const authHeader = req.headers["authorization"];
+    if (!authHeader) {
+      return res.status(401).json({ message: "Authorization header missing" });
     }
 
-    req.user = user;
-    next();
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ message: "Token missing" });
+    }
+
+    const user = await AuthenticateUser(token, {
+      accessTokenManager,
+      userRepository,
+    });
+
+    req.user = user; 
+    next(); 
   } catch (err) {
-    console.log("not authenticated user", err);
-    res.status(401).json({ message: err.message });
+    console.error("Authentication error:", err);
+
+   
+    const statusCode = err.statusCode || 500; 
+    res.status(statusCode).json({ message: err.message });
   }
 }

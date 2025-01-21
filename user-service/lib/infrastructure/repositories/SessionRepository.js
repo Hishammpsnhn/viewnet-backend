@@ -11,13 +11,13 @@ class SessionRepository {
     const sessionModel = new SessionModel({
       userEmail: session.email,
       deviceId: session.deviceId,
-      token: session.token,
+      refreshToken: session.refreshToken,
     });
     return await sessionModel.save();
   }
 
-  async deleteSession(userEmail, deviceId) {
-    return await SessionModel.deleteOne({ userEmail, deviceId });
+  async deleteSession(userEmail, refreshToken) {
+    return await SessionModel.deleteOne({ userEmail, refreshToken });
   }
 }
 

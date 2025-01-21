@@ -15,8 +15,7 @@ export default class JwtAccessTokenManager extends IAccessTokenManager {
         try {
             return jwt.verify(accessToken, JWT_SECRET_KEY);
         } catch (error) {
-            console.error("Token verification failed:", error.message);
-            return null;
+            throw Object.assign(new Error("unauthorized."), { statusCode: 401 });
         }
     }
 }

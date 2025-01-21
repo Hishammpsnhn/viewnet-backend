@@ -13,10 +13,14 @@ router.get("/test", (req, res) => {
 router.get('/qr/:id',QrController.validateQr)
 router.get('/qr/scan/:id',isAuthenticated,QrController.scanQr)
 router.get('/me',isAuthenticated,AuthController.getMe)
+router.get('/logout/:token',isAuthenticated,AuthController.logOut)
+router.get('/users',AuthController.getAllUsers)
+router.patch('/:id',AuthController.UpdateUser)
 router.post("/qr", QrController.storeQR);
 router.post("/login", AuthController.login);
 router.post("/otpVerify", AuthController.verifyOtp);
 router.post("/refresh-token", AuthController.refreshToken);
+
 // router.get('/users', AuthController.getAllUsers);
 
 export default router;
