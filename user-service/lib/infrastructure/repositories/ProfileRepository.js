@@ -32,14 +32,13 @@ class ProfileRepository extends IProfileRepository {
         throw new Error("User not found");
       }
 
-      return user.profiles; // Return the profiles array for the user
+      return user.profiles; 
     } catch (error) {
       throw new Error(`Error fetching profiles: ${error.message}`);
     }
   }
 
   async updateProfile(userId, profileData) {
-    console.log("userId............",userId,profileData)
     try {
       const user = await UserModel.findOneAndUpdate(
         { _id: userId, "profiles._id": profileData.id },
@@ -56,7 +55,7 @@ class ProfileRepository extends IProfileRepository {
         throw new Error("User not found");
       }
       return {
-        id: profileData.id,
+        _id: profileData.id,
         isAdult: profileData.isAdult,
         username: profileData.username,
         profilePic: profileData.profilePic,

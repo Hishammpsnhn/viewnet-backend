@@ -6,6 +6,7 @@ import LoginUser from "../../use-cases/user/LoginUser.js";
 import Logout from "../../use-cases/user/Logout.js";
 import axios from "axios";
 import UserRepository from "../../infrastructure/repositories/UserRepository.js";
+import NotificationService from "../../infrastructure/queue/NotificationService.js";
 import SessionRepository from "../../infrastructure/repositories/SessionRepository.js";
 import RedisOtpRegistry from "../../infrastructure/cache/RedisOtpRepository.js";
 import OtpUseCase from "../../use-cases/user/OtpUseCase.js";
@@ -13,12 +14,13 @@ import JwtAccessTokenManager from "../../infrastructure/security/JwtAccessTokenM
 import SubscriptionGateway from "../../gateway/SubscriptionGateway.js";
 
 const userRepository = new UserRepository();
+const notificationService = new NotificationService();
 const redisOtpRegistry = new RedisOtpRegistry();
 const jwtAccessTokenManager = new JwtAccessTokenManager();
 const subscriptionGateway = new SubscriptionGateway(axios);
 const sessionRepository = new SessionRepository();
 
-const loginUser = new EmailVerify(userRepository);
+const loginUser = new EmailVerify(userRepository, notificationService);
 const getUser = new GetUser(
   userRepository,
   subscriptionGateway,
@@ -78,7 +80,7 @@ class UserController {
       const verified = await otpUseCase.verifyOtp(email, otp);
       if (verified) {
         const payload = { email };
-        const accessToken = jwtAccessTokenManager.generate(payload, "15m");
+        const accessToken = jwtAccessTokenManager.generate(payload, "1h");
         const refreshToken = jwtAccessTokenManager.generate(payload, "7d");
         const { user } = await userLogin.execute(email, deviceId, refreshToken);
         const accessOptions = {
@@ -146,7 +148,7 @@ class UserController {
     }
     console.log(decoded);
     const payload = { email: decoded.email };
-    const accessToken = jwtAccessTokenManager.generate(payload, "15m");
+    const accessToken = jwtAccessTokenManager.generate(payload, "1h");
     const accessOptions = {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       httpOnly: false,

@@ -31,7 +31,7 @@ export default async (
     const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + duration);
-    console.log("sesionlimit",sessionLimit)
+
     const userSubscription = new UserSubscriptionType({
       userId,
       sessionLimit:sessionLimit,
@@ -40,9 +40,8 @@ export default async (
       startDate,
       plan: name,
     });
-    console.log("last", userSubscription);
+
     const res = await createNewPlanRepository.persist(userSubscription);
-    console.log("dd", res);
     return res;
   }
 };

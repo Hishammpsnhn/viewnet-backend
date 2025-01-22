@@ -14,6 +14,10 @@ class UserRepository extends IUserRepository {
   async findById(id) {
     return await UserModel.findById(id);
   }
+  async create(user){
+    const newUser = await UserModel.create(user);
+    return newUser;
+  }
 
   async createByEmail(email) {
     let user = await UserModel.findOne({ email });
