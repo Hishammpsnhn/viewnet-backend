@@ -27,15 +27,18 @@ export default async (
       throw new Error("User already have a subscription");
     }
     const planDetail = await subscriptionPlanRepository.findById(plan_id);
-    const { name, sessionLimit, duration } = planDetail;
+    const { name, sessionLimit, duration, ads, live, uhd } = planDetail;
     const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + duration);
 
     const userSubscription = new UserSubscriptionType({
       userId,
-      sessionLimit:sessionLimit,
+      sessionLimit: sessionLimit,
       status: "active",
+      ads,
+      live,
+      uhd,
       endDate,
       startDate,
       plan: name,

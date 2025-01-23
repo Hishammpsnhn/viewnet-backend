@@ -7,6 +7,9 @@ export default class UserSubscriptionType {
     endDate,
     status,
     sessionLimit,
+    ads,
+    live,
+    uhd
   }) {
     this.id = id;
     this.userId = userId;
@@ -15,6 +18,9 @@ export default class UserSubscriptionType {
     this.endDate = endDate;
     this.status = status;
     this.sessionLimit = sessionLimit;
+    this.ads = ads;
+    this.live = live;
+    this.uhd = uhd;
     this.createdAt = new Date();
   }
 }

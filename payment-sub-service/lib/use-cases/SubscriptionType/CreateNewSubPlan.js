@@ -8,6 +8,9 @@ export default async (
   duration,
   features,
   isActive,
+  uhd,
+  ads,
+  live,
   { subscriptionPlanRepository }
 ) => {
 
@@ -21,7 +24,7 @@ export default async (
     );
   }
 
-  if (!name || !description || !price || !sessionLimit || !duration ||!isActive || !features) {
+  if (!name || !description || !price || !sessionLimit || !duration ||!isActive || !features || !ads || !live || !uhd) {
     throw new Error("Missing required parameters");
   }
 
@@ -33,8 +36,10 @@ export default async (
     sessionLimit,
     duration,
     features,
-    isActive
+    isActive,
+    ads,
+    live,
+    uhd
   );
-  console.log("subscription: " + subscription);
   return subscriptionPlanRepository.persist(subscription);
 };

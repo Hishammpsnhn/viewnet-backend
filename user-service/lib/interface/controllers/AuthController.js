@@ -117,8 +117,20 @@ class UserController {
   }
 
   static async getAllUsers(req, res) {
+    const {page,limit,search} = req.query;
+    console.log("reqparams",req.query)
     try {
-      const users = await getAllUsers.execute();
+      const users = await getAllUsers.execute(page, limit,search);
+      res.status(200).json({ success: true, users });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+  static async getAllUsersBySearch(req, res) {
+    const {search} = req.query;
+    console.log("reqparams",req.query)
+    try {
+      const users = await getAllUsers.execute(page, limit);
       res.status(200).json({ success: true, users });
     } catch (error) {
       res.status(500).json({ message: error.message });

@@ -29,6 +29,9 @@ export async function CreateSubscriptionPlan(req, res) {
     duration,
     features,
     isActive,
+    uhd,
+    ads,
+    live
   } = req.body.planData;
 
   try {
@@ -40,6 +43,9 @@ export async function CreateSubscriptionPlan(req, res) {
       duration,
       features,
       isActive,
+      ads,
+      uhd,
+      live,
       {
         subscriptionPlanRepository,
       }

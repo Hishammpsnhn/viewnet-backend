@@ -14,7 +14,7 @@ class UserRepository extends IUserRepository {
   async findById(id) {
     return await UserModel.findById(id);
   }
-  async create(user){
+  async create(user) {
     const newUser = await UserModel.create(user);
     return newUser;
   }
@@ -30,11 +30,13 @@ class UserRepository extends IUserRepository {
     }
   }
 
-  async getAll() {
+  async getAll(page, limit,search) {
+    const skip = (page - 1) * limit;
     return await UserModel.aggregate([
       {
         $match: {
           isAdmin: false,
+          ...(search && { email: { $regex: search, $options: 'i' } }),
         },
       },
       {
@@ -52,6 +54,10 @@ class UserRepository extends IUserRepository {
           isBlock: 1,
           sessionsCount: { $size: "$userSessions" },
         },
+      },
+      { $skip: skip },
+      {
+        $limit: 5,
       },
     ]);
   }

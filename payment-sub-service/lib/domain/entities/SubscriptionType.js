@@ -7,7 +7,10 @@ export default class SubscriptionType {
     sessionLimit,
     duration,
     features,
-    isActive
+    isActive,
+    ads,
+    live,
+    uhd
   ) {
     this.id = id;
     this.name = name;
@@ -17,12 +20,15 @@ export default class SubscriptionType {
     this.duration = duration;
     this.isActive = isActive;
     this.features = features;
+    this.ads = ads;
+    this.live = live;
+    this.uhd = uhd;
     this.createdAt = new Date();
     this._modifiedFields = {};
   }
 
   setName(name) {
-    if   (name === this.name) return;
+    if (name === this.name) return;
     this.name = name;
 
     this._modifiedFields.name = true;
@@ -54,6 +60,22 @@ export default class SubscriptionType {
     this._modifiedFields.sessionLimit = true;
   }
 
+  setAds(ads) {
+    if (ads === this.ads) return;
+    this.ads = ads;
+    this._modifiedFields.ads = true;
+  }
+  setLive(live) {
+    if (live === this.live) return;
+    this.live = live;
+    this._modifiedFields.live = true;
+  }
+  setUhd(uhd) {
+    if (uhd === this.uhd) return;
+    this.uhd = uhd;
+    this._modifiedFields.uhd = true;
+  }
+
   setDuration(duration) {
     if (duration === this.duration) return;
     this.duration = duration;
@@ -74,8 +96,6 @@ export default class SubscriptionType {
 
     this._modifiedFields.isActive = true;
   }
-
- 
 
   getModifiedFields() {
     return this._modifiedFields;

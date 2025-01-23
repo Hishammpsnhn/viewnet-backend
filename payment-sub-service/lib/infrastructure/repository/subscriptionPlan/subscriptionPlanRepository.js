@@ -13,6 +13,9 @@ export default class SubscriptionPlanRepository extends ISubscriptionPlanReposit
       duration,
       features,
       isActive,
+      uhd,
+      live,
+      ads
     } = subscriptionEntity;
 
     const mongooseSubscription = new MongooseSubscription({
@@ -23,6 +26,9 @@ export default class SubscriptionPlanRepository extends ISubscriptionPlanReposit
       duration,
       features,
       isActive,
+      uhd,
+      live,
+      ads
     });
     await mongooseSubscription.save();
 
@@ -79,7 +85,10 @@ function mapToSubscriptionEntity(mongooseSubscription) {
     mongooseSubscription.sessionLimit,
     mongooseSubscription.duration,
     mongooseSubscription.features,
-    mongooseSubscription.isActive
+    mongooseSubscription.isActive,
+    mongooseSubscription.uhd,
+    mongooseSubscription.live,
+    mongooseSubscription.ads
   );
   subscription.createdAt = mongooseSubscription.createdAt;
   subscription.updatedAt = mongooseSubscription.updatedAt;

@@ -1,6 +1,5 @@
 class Profile {
     constructor({ isAdult, username, profilePic, watchHistory,id }) {
-        console.log("Constructor input:", { isAdult, username, profilePic, watchHistory });
       this.setIsAdult(isAdult);
       this.setUsername(username);
       this.setProfilePic(profilePic);
