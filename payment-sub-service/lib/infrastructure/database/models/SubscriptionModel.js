@@ -8,7 +8,6 @@ const subscriptionTypeSchema = new mongoose.Schema(
     price: { type: Number, required: true },
     sessionLimit: { type: Number, required: true },
     duration: { type: Number, required: true }, //  eg:30 day
-    features: [{ type: String }],
     isActive: { type: Boolean, default: true },
     uhd: { type: Boolean, default: false },
     live: { type: Boolean, default: false },

@@ -6,7 +6,6 @@ export default class SubscriptionType {
     price,
     sessionLimit,
     duration,
-    features,
     isActive,
     ads,
     live,
@@ -19,7 +18,6 @@ export default class SubscriptionType {
     this.sessionLimit = sessionLimit;
     this.duration = duration;
     this.isActive = isActive;
-    this.features = features;
     this.ads = ads;
     this.live = live;
     this.uhd = uhd;

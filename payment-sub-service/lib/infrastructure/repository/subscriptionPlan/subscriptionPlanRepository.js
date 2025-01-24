@@ -3,7 +3,6 @@ import ISubscriptionPlanRepository from "../../../domain/interfaces/ISubscriptio
 import MongooseSubscription from "../../database/models/SubscriptionModel.js";
 
 export default class SubscriptionPlanRepository extends ISubscriptionPlanRepository {
-
   async persist(subscriptionEntity) {
     const {
       name,
@@ -11,11 +10,10 @@ export default class SubscriptionPlanRepository extends ISubscriptionPlanReposit
       price,
       sessionLimit,
       duration,
-      features,
       isActive,
       uhd,
       live,
-      ads
+      ads,
     } = subscriptionEntity;
 
     const mongooseSubscription = new MongooseSubscription({
@@ -24,11 +22,10 @@ export default class SubscriptionPlanRepository extends ISubscriptionPlanReposit
       price,
       sessionLimit,
       duration,
-      features,
       isActive,
       uhd,
       live,
-      ads
+      ads,
     });
     await mongooseSubscription.save();
 
@@ -36,9 +33,7 @@ export default class SubscriptionPlanRepository extends ISubscriptionPlanReposit
   }
 
   async merge(PlanEntity) {
-    console.log("planEntity", PlanEntity);
     const modifiedFields = PlanEntity.getModifiedFields();
-    console.log("modifiedFields", modifiedFields);
     if (Object.keys(modifiedFields).length === 0) {
       return; // No modifications to update
     }
@@ -57,17 +52,30 @@ export default class SubscriptionPlanRepository extends ISubscriptionPlanReposit
   }
 
   async find() {
-    const plans = await MongooseSubscription.find({isActive: true});
+    const plans = await MongooseSubscription.find({ isActive: true });
     return plans.map((plan) => mapToSubscriptionEntity(plan));
   }
   async findById(id) {
-    console.log("id", id);
-    const plan = await MongooseSubscription.findOne({_id:id, isActive: true});
+    const plan = await MongooseSubscription.findOne({
+      _id: id,
+      isActive: true,
+    });
     if (!plan) {
-      throw new Error('Subscription not found or inactive');
+      throw new Error("Subscription not found or inactive");
     }
-    console.log(plan)
-  
+
+    return mapToSubscriptionEntity(plan);
+  }
+  async findByName(name, id = null) {
+    const query = { name, isActive: true };
+    if (id) {
+      query._id = { $ne: id };
+    }
+    const plan = await MongooseSubscription.findOne(query);
+    if (plan) {
+      throw new Error("Already Exist With Name " + name);
+    }
+
     return mapToSubscriptionEntity(plan);
   }
 }
@@ -84,7 +92,6 @@ function mapToSubscriptionEntity(mongooseSubscription) {
     mongooseSubscription.price,
     mongooseSubscription.sessionLimit,
     mongooseSubscription.duration,
-    mongooseSubscription.features,
     mongooseSubscription.isActive,
     mongooseSubscription.uhd,
     mongooseSubscription.live,

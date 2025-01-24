@@ -45,14 +45,7 @@ routes.forEach((route) => {
   );
 });
 
-// app.use(
-//   "/api/user",
-//   createProxyMiddleware({
-//     target:authServiceUrl,
-//     changeOrigin: true,
-//     cookieDomainRewrite: "localhost",
-//   })
-// );
+
 
 app.get("/", (req, res) => {
   res.send("API Gateway is running");

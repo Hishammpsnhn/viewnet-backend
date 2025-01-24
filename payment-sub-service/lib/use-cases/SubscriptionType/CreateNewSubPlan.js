@@ -6,7 +6,6 @@ export default async (
   price,
   sessionLimit,
   duration,
-  features,
   isActive,
   uhd,
   ads,
@@ -24,9 +23,11 @@ export default async (
     );
   }
 
-  if (!name || !description || !price || !sessionLimit || !duration ||!isActive || !features || !ads || !live || !uhd) {
+  if (!name || !description || !price || !sessionLimit || !duration ) {
     throw new Error("Missing required parameters");
   }
+
+  await subscriptionPlanRepository.findByName(name)
 
   const subscription = new SubscriptionType(
     null,
@@ -35,7 +36,6 @@ export default async (
     price,
     sessionLimit,
     duration,
-    features,
     isActive,
     ads,
     live,
