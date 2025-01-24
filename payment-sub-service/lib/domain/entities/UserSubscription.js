@@ -9,7 +9,7 @@ export default class UserSubscriptionType {
     sessionLimit,
     ads,
     live,
-    uhd
+    uhd,
   }) {
     this.id = id;
     this.userId = userId;
@@ -22,5 +22,12 @@ export default class UserSubscriptionType {
     this.live = live;
     this.uhd = uhd;
     this.createdAt = new Date();
+  }
+  isExpired(currentDate) {
+    return this.status === "active" && this.endDate < currentDate;
+  }
+
+  canBeActivated(currentDate) {
+    return this.status === "queued" && this.startDate <= currentDate;
   }
 }

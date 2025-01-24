@@ -11,7 +11,7 @@ export default class UserSubscriptionPlanRepository extends IUserSubscriptionPla
       userId: subscriptionEntity.userId,
       plan: subscriptionEntity.plan,
       sessionLimit: subscriptionEntity.sessionLimit,
-      uhd:subscriptionEntity.uhd,
+      uhd: subscriptionEntity.uhd,
       live: subscriptionEntity.live,
       ads: subscriptionEntity.ads,
       status: subscriptionEntity.status,
@@ -53,6 +53,23 @@ export default class UserSubscriptionPlanRepository extends IUserSubscriptionPla
     console.log("mongooseUserSubscription: ", mongooseUserSubscription, data);
     return mapToUserSubscriptionEntity(mongooseUserSubscription[0]);
   }
+  async latestPlan(userId) {
+    const data = await MongooseUserSubscriptionPlan.findOne({ userId }).sort({
+      endDate: -1,
+    });
+    return mapToUserSubscriptionEntity(data);
+  }
+  async findActiveSubscriptions() {
+    return MongooseUserSubscriptionPlan.find({ status: "active" });
+  }
+
+  async findQueuedSubscriptions() {
+    return MongooseUserSubscriptionPlan.find({ status: "queued" });
+  }
+
+  async updateStatus(id, status) {
+    return MongooseUserSubscriptionPlan.findByIdAndUpdate(id, { status });
+  }
 }
 
 function mapToUserSubscriptionEntity(mongooseUserSubscription) {
@@ -71,6 +88,5 @@ function mapToUserSubscriptionEntity(mongooseUserSubscription) {
   });
   subscription.createdAt = mongooseUserSubscription.createdAt;
   subscription.updatedAt = mongooseUserSubscription.updatedAt;
-  console.log("sub", subscription);
   return subscription;
 }

@@ -22,20 +22,25 @@ export default async (
 
   if (paymentVerified) {
     const { plan_id, user_id } = paymentVerified.metadata;
-    const currentPlan = await createNewPlanRepository.findByUserId(user_id);
-    if (currentPlan) {
-      throw new Error("User already have a subscription");
-    }
+    const latestSubscription = await createNewPlanRepository.latestPlan(user_id);
+
     const planDetail = await subscriptionPlanRepository.findById(plan_id);
     const { name, sessionLimit, duration, ads, live, uhd } = planDetail;
-    const startDate = new Date();
+
+
+    const now = new Date();
+    const startDate = latestSubscription && latestSubscription.endDate > now
+    ? latestSubscription.endDate
+    : now;
+
+    
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + duration);
 
     const userSubscription = new UserSubscriptionType({
       userId,
       sessionLimit: sessionLimit,
-      status: "active",
+      status: startDate > now ? 'queued' : 'active',
       ads,
       live,
       uhd,
