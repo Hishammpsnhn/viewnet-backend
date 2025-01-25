@@ -13,6 +13,9 @@ class GetUser {
 
     return { user, planDetails };
   }
+  async getByEmail(email) {
+    return await this.userRepository.findByEmail(email);
+  }
 }
 
 export default GetUser;

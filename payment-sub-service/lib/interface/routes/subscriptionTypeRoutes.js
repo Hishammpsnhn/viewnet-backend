@@ -10,7 +10,7 @@ import { GetUserPlan, UserCreatePlan } from "../controller/userSubscription/User
 const router = express.Router();
 
 router.get("/", GetAllPlans);
-router.get("/:userId", GetUserPlan);
+router.get("/:userId/plans", GetUserPlan);
 router.put("/:id", EditPlan);
 router.post("/", CreateSubscriptionPlan);
 router.post("/payment-success", UserCreatePlan);

@@ -1,4 +1,4 @@
-export default async (accessToken, { accessTokenManager, userRepository }) => {
+export default async (accessToken, { accessTokenManager }) => {
   console.log(accessToken)
   if (!accessToken) {
     throw Object.assign(new Error("unauthorized, no access token"), {
@@ -10,10 +10,10 @@ export default async (accessToken, { accessTokenManager, userRepository }) => {
   
  
 
-  const user = await userRepository.findByEmail(decoded.email);
-  if (!user) {
-    throw Object.assign(new Error("user not found."), { statusCode: 404 });
-  }
+  // const user = await userRepository.findByEmail(decoded.email);
+  // if (!user) {
+  //   throw Object.assign(new Error("user not found."), { statusCode: 404 });
+  // }
   // if (user.isBlock) {
   //   throw Object.assign(new Error("User is blocked."), { statusCode: 403 });
   // }

@@ -6,7 +6,7 @@ class SubscriptionGateway {
   
     async fetchSubscriptionDetails(userId) {
       try {
-        const response = await this.axios.get(`http://gateway:4000/api/subscription/${userId}`);
+        const response = await this.axios.get(`http://payment-sub-service:5002/${userId}`);
         return response.data.userPlan || null;
       } catch (error) {
         console.error('Error fetching subscription details:', error.message);

@@ -6,7 +6,6 @@ import MongooseUserSubscriptionPlan from "../../database/models/UserSubscription
 export default class UserSubscriptionPlanRepository extends IUserSubscriptionPlanRepository {
   // Implement the persist method
   async persist(subscriptionEntity) {
-    console.log(`Persisting subscription`, subscriptionEntity);
     const mongooseUserSubscription = new MongooseUserSubscriptionPlan({
       userId: subscriptionEntity.userId,
       plan: subscriptionEntity.plan,
@@ -35,23 +34,32 @@ export default class UserSubscriptionPlanRepository extends IUserSubscriptionPla
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new Error("Invalid userId format");
     }
-    console.log("userid: " + userId);
-    const data = await MongooseUserSubscriptionPlan.find({ userId: userId });
-    const curDate = new Date();
 
-    const mongooseUserSubscription =
+    const mongooseUserSubscriptions =
       await MongooseUserSubscriptionPlan.aggregate([
         {
           $match: {
-            userId: new mongoose.Types.ObjectId(userId), // Convert userId to ObjectId if necessary
-            status: "active", // Match only active subscriptions
-            endDate: { $gte: curDate }, // Ensure endDate is greater than or equal to current date
+            userId: new mongoose.Types.ObjectId(userId),
+          },
+        },
+        {
+          $addFields: {
+            sortOrder: {
+              $cond: [
+                { $eq: ["$status", "active"] },
+                0,
+                { $cond: [{ $eq: ["$status", "queue"] }, 1, 2] },
+              ],
+            },
+          },
+        },
+        {
+          $sort: {
+            sortOrder: 1,
           },
         },
       ]);
-
-    console.log("mongooseUserSubscription: ", mongooseUserSubscription, data);
-    return mapToUserSubscriptionEntity(mongooseUserSubscription[0]);
+    return mongooseUserSubscriptions.map(mapToUserSubscriptionEntity);
   }
   async latestPlan(userId) {
     const data = await MongooseUserSubscriptionPlan.findOne({ userId }).sort({
@@ -85,6 +93,9 @@ function mapToUserSubscriptionEntity(mongooseUserSubscription) {
     status: mongooseUserSubscription.status,
     endDate: mongooseUserSubscription.endDate,
     startDate: mongooseUserSubscription.startDate,
+    uhd: mongooseUserSubscription.uhd,
+    live: mongooseUserSubscription.live,
+    ads: mongooseUserSubscription.ads,
   });
   subscription.createdAt = mongooseUserSubscription.createdAt;
   subscription.updatedAt = mongooseUserSubscription.updatedAt;

@@ -21,6 +21,7 @@ export async function GetAllPlans(req, res) {
   }
 }
 export async function CreateSubscriptionPlan(req, res) {
+  console.log(req.body)
   const {
     name,
     description,
@@ -31,7 +32,7 @@ export async function CreateSubscriptionPlan(req, res) {
     uhd,
     ads,
     live
-  } = req.body.planData;
+  } = req.body;
 
   try {
     const plan = await CreateNewSubPlan(
@@ -58,9 +59,8 @@ export async function CreateSubscriptionPlan(req, res) {
 
 export async function EditPlan(req, res) {
   const { id } = req.params;
-  const { planData } = req.body;
   try {
-    const plan = await EditPlans(id, planData, { subscriptionPlanRepository });
+    const plan = await EditPlans(id, req.body, { subscriptionPlanRepository });
     res.status(200).json({ success: true, plan });
   } catch (error) {
     console.error(error);

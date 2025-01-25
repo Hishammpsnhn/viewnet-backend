@@ -12,6 +12,7 @@ const changeDefaultProfile = new ChangeDefaultProfile(profileRepository);
 export class ProfileController {
   async createProfile(req, res) {
     try {
+      console.log(req.body)
       const { userId, profileData } = req.body;
       if (!userId || !profileData) {
         return res

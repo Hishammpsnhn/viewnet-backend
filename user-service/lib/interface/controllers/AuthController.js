@@ -38,17 +38,37 @@ const updateUser = new UpdateUser(userRepository);
 
 class UserController {
   static async getMe(req, res) {
+    console.log("get me")
     try {
-      console.log("req.user", req.user);
+    //  console.log("req.user", req.user);
       if (!req.user) {
         return res.status(400).json({ message: "Token is required" });
       }
       const { user, planDetails } = await getUser.execute(req.user.email);
+      //console.log("user>>>>", user, planDetails);
 
       res.status(200).json({
         success: true,
         user,
         planDetails,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+  static async validate(req, res) {
+    console.log("validat")
+    try {
+      console.log("req.user", req.user);
+      if (!req.user) {
+        return res.status(400).json({ message: "Token is required" });
+      }
+      const data = await getUser.getByEmail(req.user.email);
+      console.log("user>>>>",data);
+
+      res.status(200).json({
+        success: true,
+        data,
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -79,10 +99,10 @@ class UserController {
 
       const verified = await otpUseCase.verifyOtp(email, otp);
       if (verified) {
-        const payload = { email };
-        const accessToken = jwtAccessTokenManager.generate(payload, "1h");
-        const refreshToken = jwtAccessTokenManager.generate(payload, "7d");
+        const refreshToken = jwtAccessTokenManager.generate({ email }, "7d");
         const { user } = await userLogin.execute(email, deviceId, refreshToken);
+        const payload = { email: user.email, isAdmin: user.isAdmin };
+        const accessToken = jwtAccessTokenManager.generate(payload, "1h");
         const accessOptions = {
           maxAge: 15 * 60 * 1000, // 7 days
           httpOnly: false,
@@ -117,18 +137,18 @@ class UserController {
   }
 
   static async getAllUsers(req, res) {
-    const {page,limit,search} = req.query;
-    console.log("reqparams",req.query)
+    const { page, limit, search } = req.query;
+    console.log("reqparams", req.query);
     try {
-      const users = await getAllUsers.execute(page, limit,search);
+      const users = await getAllUsers.execute(page, limit, search);
       res.status(200).json({ success: true, users });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   }
   static async getAllUsersBySearch(req, res) {
-    const {search} = req.query;
-    console.log("reqparams",req.query)
+    const { search } = req.query;
+    console.log("reqparams", req.query);
     try {
       const users = await getAllUsers.execute(page, limit);
       res.status(200).json({ success: true, users });
@@ -150,7 +170,6 @@ class UserController {
 
   static async refreshToken(req, res) {
     const { refreshToken } = req.body;
-    console.log("refresh token>>>>>", refreshToken);
     if (!refreshToken) {
       return res.status(400).json({ message: "Refresh token is required" });
     }
@@ -158,8 +177,8 @@ class UserController {
     if (!decoded) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
-    console.log(decoded);
-    const payload = { email: decoded.email };
+    const user = await getUser.getByEmail(decoded.email);
+    const payload = { email: decoded.email, isAdmin: user.isAdmin };
     const accessToken = jwtAccessTokenManager.generate(payload, "1h");
     const accessOptions = {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days

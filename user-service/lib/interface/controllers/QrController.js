@@ -88,11 +88,10 @@ class QrController {
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-    
       const sendPing = setInterval(() => {
         res.write("event: ping\n");
         res.write(`data: {}\n\n`);
-      }, 10000); 
+      }, 10000);
 
       // Continuously check QR validation status
       const intervalId = setInterval(async () => {
@@ -100,16 +99,19 @@ class QrController {
           const verified = await otpUseCase.verifyKey(id);
 
           if (verified && verified !== "false") {
-            console.log("verfied: >>>>>>>>>>>" + verified)
-            const payload = { email: verified };
+            console.log("verfied: >>>>>>>>>>>" + verified);
             const deviceId = "Linux-Guest";
-            const accessToken = jwtAccessTokenManager.generate(payload, "1h");
-            const refreshToken = jwtAccessTokenManager.generate(payload, "7d");
-            const user = await userLogin.execute(
+            const refreshToken = jwtAccessTokenManager.generate(
+              { email: verified },
+              "7d"
+            );
+            const { user } = await userLogin.execute(
               verified,
               deviceId,
               refreshToken
             );
+            const payload = { email: verified, isAdmin: user.isAdmin };
+            const accessToken = jwtAccessTokenManager.generate(payload, "1h");
 
             res.write("event: validated\n");
             res.write(
@@ -124,7 +126,7 @@ class QrController {
             clearInterval(intervalId);
             clearInterval(sendPing);
             res.end();
-          } 
+          }
         } catch (error) {
           // Handle errors and send an error event
           res.write("event: error\n");

@@ -23,7 +23,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./user-service/prometheus-config.yml:/etc/prometheus/prometheus.yml
+      - ./gateway-dev/prometheus-config.yml:/etc/prometheus/prometheus.yml
 
   # User Service
   user-service:
